@@ -12,7 +12,7 @@ export class FeatureSwitchService {
    */
   public getAllFeatures = async () => {
     const response = await makeRequest("GET", `${this.apiUrl}/api/feature`, {
-      headers: getAuthHeaders(),
+      headers: { ...getAuthHeaders(), version: "1" },
     });
     return response;
   };

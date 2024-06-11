@@ -7,7 +7,10 @@ export class FeedbackService {
   public createFeedback = async (feedback) => {
     const response = await makeRequest("POST", `${apiUrl}/api/feedback`, {
       body: feedback,
-      headers: getMultipartAuthHeaders(),
+      headers: {
+        ...getMultipartAuthHeaders(),
+        version: "1",
+      },
     });
     return response;
   };

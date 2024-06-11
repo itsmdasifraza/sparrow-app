@@ -17,7 +17,7 @@ export class WorkspaceService {
       "GET",
       `${apiUrl}/api/workspace/user/${userId}`,
       {
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -28,7 +28,7 @@ export class WorkspaceService {
       "GET",
       `${apiUrl}/api/workspace/team/${teamId}`,
       {
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -42,7 +42,7 @@ export class WorkspaceService {
       `${apiUrl}/api/workspace/${workspaceId}`,
       {
         body: workspace,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -55,7 +55,7 @@ export class WorkspaceService {
       "DELETE",
       `${apiUrl}/api/workspace/${workspaceId}`,
       {
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -64,7 +64,7 @@ export class WorkspaceService {
   public createWorkspace = async (workspace: WorkspacePostBody) => {
     const response = await makeRequest("POST", `${apiUrl}/api/workspace`, {
       body: workspace,
-      headers: getAuthHeaders(),
+      headers: { ...getAuthHeaders(), version: "1" },
     });
     return response;
   };
@@ -78,7 +78,7 @@ export class WorkspaceService {
       `${apiUrl}/api/workspace/${workspaceId}/user`,
       {
         body: addUsersInWorkspaceDto,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -90,7 +90,7 @@ export class WorkspaceService {
         "GET",
         `${apiUrl}/api/workspace/${workspaceId}/users`,
         {
-          headers: getAuthHeaders(),
+          headers: { ...getAuthHeaders(), version: "1" },
         },
       );
       return response;
@@ -107,7 +107,7 @@ export class WorkspaceService {
       `${apiUrl}/api/workspace/${workspaceId}/user/${userId}`,
       {
         body: { role },
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -121,7 +121,7 @@ export class WorkspaceService {
       "DELETE",
       `${apiUrl}/api/workspace/${workspaceId}/user/${userId}`,
       {
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;

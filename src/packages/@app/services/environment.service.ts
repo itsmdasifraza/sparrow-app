@@ -14,7 +14,7 @@ export class EnvironmentService {
     const response = await makeRequest(
       "GET",
       `${this.apiUrl}/api/workspace/${workspaceId}/environment`,
-      { headers: getAuthHeaders() },
+      { headers: { ...getAuthHeaders(), version: "1" } },
     );
     return response;
   };
@@ -26,7 +26,7 @@ export class EnvironmentService {
     const response = await makeRequest(
       "GET",
       `${this.apiUrl}/api/workspace/${workspaceId}/environment/${environmentId}`,
-      { headers: getAuthHeaders() },
+      { headers: { ...getAuthHeaders(), version: "1" } },
     );
     return response;
   };
@@ -37,7 +37,7 @@ export class EnvironmentService {
       `${this.apiUrl}/api/workspace/environment`,
       {
         body: environment,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
 
@@ -54,7 +54,7 @@ export class EnvironmentService {
       `${this.apiUrl}/api/workspace/${workspaceId}/environment/${environmentId}`,
       {
         body: environment,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -66,7 +66,7 @@ export class EnvironmentService {
     const response = await makeRequest(
       "DELETE",
       `${this.apiUrl}/api/workspace/${workspaceId}/environment/${environmentId}`,
-      { headers: getAuthHeaders() },
+      { headers: { ...getAuthHeaders(), version: "1" } },
     );
     return response;
   };

@@ -19,7 +19,7 @@ export class TeamService {
       "GET",
       `${apiUrl}/api/team/user/${userId}`,
       {
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -28,7 +28,10 @@ export class TeamService {
   public createTeam = async (team: TeamPostBody) => {
     const response = await makeRequest("POST", `${apiUrl}/api/team`, {
       body: team,
-      headers: getMultipartAuthHeaders(),
+      headers: {
+        ...getMultipartAuthHeaders(),
+        version: "1",
+      },
     });
     return response;
   };
@@ -36,7 +39,10 @@ export class TeamService {
   public updateTeam = async (teamId: string, team: TeamPostBody) => {
     const response = await makeRequest("PUT", `${apiUrl}/api/team/${teamId}`, {
       body: team,
-      headers: getMultipartAuthHeaders(),
+      headers: {
+        ...getMultipartAuthHeaders(),
+        version: "1",
+      },
     });
     return response;
   };
@@ -46,7 +52,7 @@ export class TeamService {
       "PUT",
       `${apiUrl}/api/team/${teamId}/leave`,
       {
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     if (response.isSuccessful) {
@@ -64,7 +70,7 @@ export class TeamService {
       `${apiUrl}/api/team/${teamId}/user`,
       {
         body: inviteBody,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -75,7 +81,7 @@ export class TeamService {
       "DELETE",
       `${apiUrl}/api/team/${teamId}/user/${userId}`,
       {
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -86,7 +92,7 @@ export class TeamService {
       "POST",
       `${apiUrl}/api/team/${teamId}/admin/${userId}`,
       {
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -97,7 +103,7 @@ export class TeamService {
       "PUT",
       `${apiUrl}/api/team/${teamId}/admin/${userId}`,
       {
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -108,7 +114,7 @@ export class TeamService {
       "POST",
       `${apiUrl}/api/team/${teamId}/owner/${userId}`,
       {
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;

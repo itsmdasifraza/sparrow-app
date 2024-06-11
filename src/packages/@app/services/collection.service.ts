@@ -23,7 +23,7 @@ export class CollectionService {
       "GET",
       `${this.apiUrl}/api/collection/${workspaceId}`,
       {
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -34,7 +34,7 @@ export class CollectionService {
       `${this.apiUrl}/api/collection`,
       {
         body: collection,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -50,7 +50,7 @@ export class CollectionService {
       `${this.apiUrl}/api/collection/${collectionId}/workspace/${workspaceId}`,
       {
         body: name,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
 
@@ -64,7 +64,7 @@ export class CollectionService {
     const response = await makeRequest(
       "DELETE",
       `${this.apiUrl}/api/collection/${collectionId}/workspace/${workspaceId}`,
-      { headers: getAuthHeaders() },
+      { headers: { ...getAuthHeaders(), version: "1" } },
     );
 
     return response;
@@ -80,7 +80,7 @@ export class CollectionService {
       `${this.apiUrl}/api/collection/${collectionId}/workspace/${workspaceId}/folder`,
       {
         body: folder,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -97,7 +97,7 @@ export class CollectionService {
       `${this.apiUrl}/api/collection/${collectionId}/workspace/${workspaceId}/folder/${folderId}`,
       {
         body: folder,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
 
@@ -115,7 +115,7 @@ export class CollectionService {
       `${this.apiUrl}/api/collection/${collectionId}/workspace/${workspaceId}/folder/${folderId}`,
       {
         body,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -129,7 +129,7 @@ export class CollectionService {
       `${this.apiUrl}/api/collection/request`,
       {
         body: apiRequest,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -144,7 +144,7 @@ export class CollectionService {
       `${this.apiUrl}/api/collection/request/${requestId}`,
       {
         body: requestBody,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
 
@@ -160,7 +160,7 @@ export class CollectionService {
       `${this.apiUrl}/api/collection/request/${requestId}`,
       {
         body: deleteRequestBody,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     if (response.isSuccessful) {
@@ -196,6 +196,7 @@ export class CollectionService {
       headers: {
         ...getAuthHeaders(),
         "x-oapi-url": data,
+        version: "1",
         "Content-type": ContentTypeEnum["application/json"],
       },
     });
@@ -225,7 +226,7 @@ export class CollectionService {
       `${this.apiUrl}/api/workspace/${workspaceId}/importUrl/collection`,
       {
         body: { ...url, activeSync },
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -242,7 +243,7 @@ export class CollectionService {
         body: {
           branchName,
         },
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
@@ -254,7 +255,7 @@ export class CollectionService {
       `${this.apiUrl}/api/workspace/${workspaceId}/importFile/collection`,
       {
         body: file,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
 
@@ -271,7 +272,11 @@ export class CollectionService {
       `${this.apiUrl}/api/workspace/${workspaceId}/importJson/collection`,
       {
         body: jsonObject,
-        headers: { ...getAuthHeaders(), "Content-type": contentType },
+        headers: {
+          ...getAuthHeaders(),
+          version: "1",
+          "Content-type": contentType,
+        },
       },
     );
     return response;
@@ -285,7 +290,11 @@ export class CollectionService {
       `${this.apiUrl}/api/workspace/${workspaceId}/importFile/collection`,
       {
         body: formData,
-        headers: { ...getAuthHeaders(), "Content-type": contentType },
+        headers: {
+          ...getAuthHeaders(),
+          version: "1",
+          "Content-type": contentType,
+        },
       },
     );
     return response;
@@ -298,6 +307,7 @@ export class CollectionService {
       },
       headers: {
         ...getAuthHeaders(),
+        version: "1",
         "Content-type": ContentTypeEnum["application/x-www-form-urlencoded"],
       },
     });

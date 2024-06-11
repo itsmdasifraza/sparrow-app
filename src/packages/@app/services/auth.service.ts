@@ -26,7 +26,10 @@ const loginUser = async (userInfo: loginUserPostBody) => {
 
 const loginWithGoogle = async () => {
   const response = await makeRequest("GET", `${apiUrl}/api/auth/google`, {
-    headers: getRefHeaders(),
+    headers: {
+      ...getRefHeaders(),
+      version: "1",
+    },
   });
 
   return response;
@@ -68,7 +71,10 @@ const resetPassword = async (changePasswordBody: resetPasswordPostBody) => {
 
 const userLogout = async () => {
   const response = await makeRequest("GET", `${apiUrl}/api/user/logout`, {
-    headers: getRefHeaders(),
+    headers: {
+      ...getRefHeaders(),
+      version: "1",
+    },
   });
   return response;
 };
@@ -78,7 +84,10 @@ const refreshToken = async () => {
     "POST",
     `${apiUrl}/api/auth/refresh-token`,
     {
-      headers: getRefHeaders(),
+      headers: {
+        ...getRefHeaders(),
+        version: "1",
+      },
     },
   );
   return response;

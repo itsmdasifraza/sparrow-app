@@ -27,7 +27,7 @@ const fetchCollection = async (workspaceId: string) => {
     "GET",
     `${apiUrl}/api/collection/${workspaceId}`,
     {
-      headers: getAuthHeaders(),
+      headers: { ...getAuthHeaders(), version: "1" },
     },
   );
   return response;
@@ -43,7 +43,7 @@ const insertCollectionDirectory = async (
     `${apiUrl}/api/collection/${collectionId}/workspace/${workspaceId}/folder`,
     {
       body: directory,
-      headers: getAuthHeaders(),
+      headers: { ...getAuthHeaders(), version: "1" },
     },
   );
   return response;
@@ -57,7 +57,7 @@ const insertCollectionRequest = async (
     `${apiUrl}/api/collection/request`,
     {
       body: apiRequest,
-      headers: getAuthHeaders(),
+      headers: { ...getAuthHeaders(), version: "1" },
     },
   );
   return response;
@@ -74,7 +74,7 @@ const updateCollectionRequest = async (
     `${apiUrl}/api/collection/request/${id}`,
     {
       body: apiRequest,
-      headers: getAuthHeaders(),
+      headers: { ...getAuthHeaders(), version: "1" },
     },
   );
   return response;
@@ -86,7 +86,7 @@ const insertCollection: (
 ) => Promise<any> = async (collection) => {
   const response = await makeRequest("POST", `${apiUrl}/api/collection`, {
     body: collection,
-    headers: getAuthHeaders(),
+    headers: { ...getAuthHeaders(), version: "1" },
   });
   return response;
 };

@@ -10,7 +10,7 @@ export class UserService {
       "GET",
       `${apiUrl}/api/team/${teamId}/user/${userId}/disableTeamNewInvite`,
       {
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), version: "1" },
       },
     );
     return response;
