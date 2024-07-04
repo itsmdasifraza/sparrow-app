@@ -50,6 +50,7 @@
    * @param tabId - selected option id
    */
   let handleDropdown = (tabId: string) => {
+    console.log(tabId);
     onInitActiveEnvironmentToWorkspace(currentWorkspaceId, tabId);
     onSwitchWorkspace(tabId);
   };

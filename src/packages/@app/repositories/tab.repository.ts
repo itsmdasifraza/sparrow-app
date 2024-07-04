@@ -49,7 +49,23 @@ export class TabRepository {
    * Removes an existing tab from the tab bar.
    */
   public removeTab = async (id: string): Promise<void> => {
-    const doc = await this.getDocuments();
+    const activeWorkspace = await RxDB.getInstance()
+      .rxdb.workspace.findOne({
+        selector: {
+          isActiveWorkspace: true,
+        },
+      })
+      .exec();
+
+    const tabList = await this.getDocuments();
+    const doc = tabList.filter((tab) => {
+      if (tab?.path?.workspaceId === activeWorkspace._id) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
     for (let i = 0; i < doc.length; i++) {
       if (doc[i].get("id") === id) {
         if (doc[i + 1]) {
@@ -250,9 +266,7 @@ export class TabRepository {
     sub();
   };
 
-
-
-  public updateTab = async (tabId,tab): Promise<void> => {
+  public updateTab = async (tabId, tab): Promise<void> => {
     const query = await RxDB.getInstance()
       .rxdb.tab.findOne({
         selector: {
@@ -260,9 +274,8 @@ export class TabRepository {
         },
       })
       .exec();
-      await query.incrementalModify((value) => {
-        return { ...value, ...tab };
-      });
+    await query.incrementalModify((value) => {
+      return { ...value, ...tab };
+    });
   };
-  
 }

@@ -17,7 +17,7 @@
     RestExplorerPage,
     CollectionExplorerPage,
     FolderExplorerPage,
-    WorkspaceExplorerPage
+    WorkspaceExplorerPage,
   } from "../";
   import {
     TabBar,
@@ -54,7 +54,7 @@
   import SaveAsRequest from "@workspaces/features/save-as-request/layout/SaveAsRequest.svelte";
   import { isGuestUserActive } from "$lib/store";
   import { pagesMotion } from "@app/constants";
- import { user } from "$lib/store";
+  import { user } from "$lib/store";
 
   export let modifiedUser;
   user.subscribe((value) => {
@@ -255,7 +255,10 @@
       >
         <section class="d-flex flex-column h-100">
           <TabBar
-            tabList={$tabList}
+            tabList={$tabList?.filter((tab) => {
+              if (tab?.path?.workspaceId === prevWorkspaceId) return true;
+              return false;
+            })}
             {isGuestUser}
             onNewTabRequested={_viewModel.createNewTab}
             onTabClosed={closeTab}
@@ -270,25 +273,25 @@
           <div style="flex:1; overflow: hidden;">
             <Route>
               {#if true}
-                {#if $activeTab?.type === ItemType.REQUEST}
+                {#if $activeTab?.type === ItemType.REQUEST && $activeTab?.path?.workspaceId === prevWorkspaceId}
                   <Motion {...scaleMotionProps} let:motion>
                     <div class="h-100" use:motion>
                       <RestExplorerPage tab={$activeTab} />
                     </div>
                   </Motion>
-                {:else if $activeTab?.type === ItemType.COLLECTION}
+                {:else if $activeTab?.type === ItemType.COLLECTION && $activeTab?.path?.workspaceId === prevWorkspaceId}
                   <Motion {...scaleMotionProps} let:motion>
                     <div class="h-100" use:motion>
                       <CollectionExplorerPage tab={$activeTab} />
                     </div>
                   </Motion>
-                {:else if $activeTab?.type === ItemType.FOLDER}
+                {:else if $activeTab?.type === ItemType.FOLDER && $activeTab?.path?.workspaceId === prevWorkspaceId}
                   <Motion {...scaleMotionProps} let:motion>
                     <div class="h-100" use:motion>
                       <FolderExplorerPage tab={$activeTab} />
                     </div>
                   </Motion>
-                  {:else if $activeTab?.type === ItemType.WORKSPACE}
+                {:else if $activeTab?.type === ItemType.WORKSPACE && $activeTab?.path?.workspaceId === prevWorkspaceId}
                   <Motion {...scaleMotionProps} let:motion>
                     <div use:motion>
                       <WorkspaceExplorerPage
@@ -298,7 +301,10 @@
                       />
                     </div>
                   </Motion>
-                {:else if !$tabList?.length}
+                {:else if !$tabList?.filter((tab) => {
+                  if (tab?.path?.workspaceId === prevWorkspaceId) return true;
+                  return false;
+                })?.length}
                   <Motion {...scaleMotionProps} let:motion>
                     <div class="h-100" use:motion>
                       <WorkspaceDefault
