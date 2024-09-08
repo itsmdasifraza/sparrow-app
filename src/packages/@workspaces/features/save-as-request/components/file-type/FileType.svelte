@@ -1,7 +1,6 @@
 <script lang="ts">
   import { getMethodStyle } from "$lib/utils/helpers/conversion.helper";
   import folder from "$lib/assets/folder.svg";
-  import collection from "$lib/assets/collection.svg";
   import { ItemType, RequestMethod } from "$lib/utils/enums";
   import { CollectionIcon, SocketIcon } from "@library/icons";
   export let type: ItemType = ItemType.REQUEST;

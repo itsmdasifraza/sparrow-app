@@ -20,7 +20,6 @@
 
   // --- SVG
   import threedotIcon from "$lib/assets/3dot.svg";
-  import reloadSyncIcon from "$lib/assets/reload-sync.svg";
 
   // ---- DB
   import type { CollectionDocument } from "@app/database/database";

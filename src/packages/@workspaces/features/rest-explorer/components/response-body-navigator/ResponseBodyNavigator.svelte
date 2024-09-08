@@ -13,8 +13,6 @@
   import { UntrackedItems } from "$lib/utils/enums/item-type.enum";
   import { v4 as uuidv4 } from "uuid";
   import { generateSampleRequest } from "$lib/utils/sample/request.sample";
-  import StatusSuccess from "$lib/assets/status-success.svelte";
-  import StatusError from "$lib/assets/status-error.svelte";
   import { Select } from "@library/forms";
   import { ResponseFormatterEnum } from "@common/types/workspace";
   import BeautifyIcon from "$lib/assets/beautify.svg";

@@ -1,6 +1,4 @@
 <script lang="ts">
-  import downloadIcon from "$lib/assets/download.svg";
-  import copyIcon from "$lib/assets/copy.svg";
   import copyToClipBoard from "$lib/utils/copyToClipboard";
   import { notifications } from "@library/ui/toast/Toast";
   import {
@@ -10,7 +8,6 @@
   import MixpanelEvent from "$lib/utils/mixpanel/MixpanelEvent";
   import { Events } from "$lib/utils/enums/mixpanel-events.enum";
   import { ResponseFormatterEnum } from "@common/types/workspace";
-  import BeautifyIcon from "$lib/assets/beautify.svg";
   import js_beautify, { html_beautify } from "js-beautify";
   import {
     WithButtonV4,

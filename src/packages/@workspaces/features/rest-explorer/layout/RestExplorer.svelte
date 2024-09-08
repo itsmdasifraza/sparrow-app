@@ -1,7 +1,6 @@
 <script lang="ts">
   // ---- Assets
   import floppyDisk from "$lib/assets/floppy-disk.svg";
-  import angleDown from "$lib/assets/angle-down.svg";
   // ---- Components
   import {
     HttpUrlSection,

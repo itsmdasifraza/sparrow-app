@@ -39,7 +39,6 @@
   import { workspaceLevelPermissions } from "$lib/utils/constants/permissions.constant";
   import { PERMISSION_NOT_FOUND_TEXT } from "$lib/utils/constants/permissions.constant";
   import { CollectionMessage } from "$lib/utils/constants/request.constant";
-  import requestIcon from "$lib/assets/create_request.svg";
   import type { Path } from "$lib/utils/interfaces/request.interface";
   import AddIcon from "$lib/assets/add.svg";
   import {

@@ -11,7 +11,6 @@
     validateClientXML,
     validateImportBody,
   } from "$lib/utils/collections/utils.old";
-  import linkIcon from "$lib/assets/linkIcon.svg";
   import { invoke } from "@tauri-apps/api/core";
   import Button from "@library/ui/button/Button.svelte";
   import { ContentTypeEnum, ResponseStatusCode } from "$lib/utils/enums";

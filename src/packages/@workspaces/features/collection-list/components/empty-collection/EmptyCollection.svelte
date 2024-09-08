@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Plus from "$lib/assets/plus.svelte";
   import { hasWorkpaceLevelPermission } from "$lib/utils/helpers";
   import {
     PERMISSION_NOT_FOUND_TEXT,
@@ -31,7 +30,7 @@
 </script>
 
 <div class="d-flex flex-column align-items-center">
-  <List  classProps={"pb-2 p-1"}>
+  <List classProps={"pb-2 p-1"}>
     <p class="text-fs-12 text-center" style="color: var(--text-secondary-50)">
       Add Collections to your Workspace to group your requests or send an API
       request directly

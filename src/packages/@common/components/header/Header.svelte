@@ -3,7 +3,6 @@
   import { CloudOffIcon, SparrowEdgeIcon, StackIcon } from "@library/icons";
   import { environmentType } from "$lib/utils/enums";
   import { ArrowIcon } from "@library/icons";
-  import { DownArrowIcon } from "$lib/assets/icons";
   import ArrowUnfilled from "@library/icons/ArrowUnfilled.svelte";
   import { Tooltip } from "@library/ui";
   import { SparrowIcon } from "@library/icons";

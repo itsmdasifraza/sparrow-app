@@ -1,13 +1,9 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
   import { ItemType } from "$lib/utils/enums/item-type.enum";
-  import collectionAsset from "$lib/assets/collection.svg";
-  import workspaceAsset from "$lib/assets/workspace.svg";
-  import folderAsset from "$lib/assets/folder.svg";
   import leftArrowAsset from "$lib/assets/angleLeft.svg";
   import { searchTreeDocument } from "../utils";
   import { notifications } from "@library/ui/toast/Toast";
-  import type { Observable } from "rxjs";
   import type { CollectionDocument } from "@app/database/database";
   import tickIcon from "$lib/assets/tick-grey.svg";
   import crossIcon from "$lib/assets/cross-grey.svg";

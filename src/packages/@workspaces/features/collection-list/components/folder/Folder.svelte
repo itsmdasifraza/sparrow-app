@@ -5,8 +5,6 @@
   import folderCloseIcon from "$lib/assets/folder.svg";
   import folderOpenIcon from "$lib/assets/open-folder.svg";
   import threedotIcon from "$lib/assets/3dot.svg";
-  import AddIcon from "$lib/assets/add.svg";
-  import requestIcon from "$lib/assets/create_request.svg";
   import { RequestIcon } from "@library/icons";
   import angleRight from "$lib/assets/angle-right-v2.svg";
 

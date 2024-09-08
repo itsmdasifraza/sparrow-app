@@ -1,7 +1,6 @@
 <script lang="ts">
   import vector1 from "$lib/assets/Vector1.svg";
   import vector2 from "$lib/assets/Vector2.svg";
-  // import sparrowicon from "$lib/assets/sparrowIcon.svg";
   import vector3 from "$lib/assets/Vector3.svg";
   import starIcon from "$lib/assets/starIcon.svg";
   import { handleResetPasswordValidation } from "./reset-password";

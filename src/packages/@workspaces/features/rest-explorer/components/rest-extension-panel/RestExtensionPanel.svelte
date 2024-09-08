@@ -1,6 +1,4 @@
 <script lang="ts">
-  import commetIcon from "$lib/assets/comment-fill.svg";
-  import codeIcon from "$lib/assets/code.svg";
   import BookIcon from "$lib/assets/book.svelte";
   import type { NewTab } from "$lib/utils/interfaces/request.interface";
   import { Tooltip } from "@library/ui";

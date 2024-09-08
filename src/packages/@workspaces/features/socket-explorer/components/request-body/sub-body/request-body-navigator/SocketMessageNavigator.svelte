@@ -1,5 +1,4 @@
 <script lang="ts">
-  import BeautifyIcon from "$lib/assets/beautify.svg";
   import { RequestDataType, RequestDataset } from "$lib/utils/enums";
   import { Button } from "@library/ui";
   import { notifications } from "@library/ui/toast/Toast";
@@ -51,7 +50,6 @@
     onClick={() => {
       onSendMessage();
       MixpanelEvent(Events.Send_WebSocket_Request);
-
     }}
     type={"primary"}
   />

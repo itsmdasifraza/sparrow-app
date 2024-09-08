@@ -2,8 +2,6 @@
   import type { KeyValuePair } from "$lib/utils/interfaces/request.interface";
   import { TabularInput } from "@workspaces/common/components";
   import { createDeepCopy } from "$lib/utils/helpers/conversion.helper";
-  import AngleUp from "$lib/assets/angle-up.svelte";
-  import AngleDown from "$lib/assets/angle-down2.svelte";
   import MixpanelEvent from "$lib/utils/mixpanel/MixpanelEvent";
   import { Events } from "$lib/utils/enums";
 
