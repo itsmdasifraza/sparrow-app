@@ -153,7 +153,7 @@ export default class WorkspaceExplorerViewModel {
         await this.workspaceRepository.activateInitialWorkspace();
       }
       await this.teamRepository.removeWorkspaceFromTeam(
-        workspace.team?.teamId,
+        workspace.team?.teamId as string,
         workspace._id,
       );
       await this.tabRepository.removeTabsByQuery({
@@ -254,7 +254,9 @@ export default class WorkspaceExplorerViewModel {
       await this.updatesRepository.getUpdatesObservableDocs(workspaceId);
     // Check if existing updates exist and the number of updates is a multiple of 20
     if (exisitingUpdates && exisitingUpdates[0]?.updates?.length % 20 === 0) {
-      const page = (parseInt(exisitingUpdates[0]?.pageNumber) + 1).toString();
+      const page = (
+        parseInt(exisitingUpdates[0]?.pageNumber as string) + 1
+      ).toString();
       const response = await this.updatesService.getUpdates(workspaceId, page);
       if (response.isSuccessful) {
         await this.updatesRepository.insertUpdates(

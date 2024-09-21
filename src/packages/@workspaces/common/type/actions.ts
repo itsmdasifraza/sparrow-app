@@ -5,10 +5,12 @@ import type {
 import type {
   Auth,
   Body,
+  CollectionItemsDto,
   KeyValueChecked,
   Response,
   StatePartial,
 } from "@common/types/workspace";
+import type { EnvExtractedByWorkspaceType } from "@common/types/workspace/environment";
 
 export type UpdateRequestUrlType = (
   url: string,
@@ -68,7 +70,9 @@ export type ClearResponseType = () => Promise<void>;
 export interface ClearResponse {
   clearResponse: ClearResponseType;
 }
-export type SendRequestType = () => Promise<void>;
+export type SendRequestType = (
+  env: EnvExtractedByWorkspaceType,
+) => Promise<void>;
 export interface SendRequest {
   sendRequest: SendRequestType;
 }
@@ -79,7 +83,7 @@ export interface ReadCollection {
 export type ReadRequestOrFolderInCollectionType = (
   collectionId: string,
   uuid: string,
-) => Promise<object>;
+) => Promise<CollectionItemsDto | undefined>;
 export interface ReadRequestOrFolderInCollection {
   readRequestOrFolderInCollection: ReadRequestOrFolderInCollectionType;
 }

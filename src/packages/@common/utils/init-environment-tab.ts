@@ -1,8 +1,13 @@
-import { TabTypeEnum } from "@common/types/workspace";
+import { TabTypeEnum, type Tab } from "@common/types/workspace";
+import {
+  EnvDefaultEnum,
+  EnvScopeEnum,
+  type EnvVariableType,
+} from "@common/types/workspace/environment";
 import { v4 as uuidv4 } from "uuid";
 
 class InitEnvironmentTab {
-  private _tab;
+  private _tab: Tab;
   /**
    *
    * @param _id - Environment mongo id
@@ -12,26 +17,26 @@ class InitEnvironmentTab {
     this._tab = {
       id: _id,
       tabId: uuidv4(),
-      name: "New Environment",
+      name: `New ${EnvDefaultEnum.NAME}`,
       type: TabTypeEnum.ENVIRONMENT,
       description: "",
       source: "USER",
       isDeleted: false,
       activeSync: false,
       property: {
-        environment:{
+        environment: {
           variable: [
-                {
-                  key: "",
-                  value: "",
-                  checked: true,
-                },
-              ],
-                 type: "LOCAL",
-                 state: {
-                  isSaveInProgress: false,
-                 }
-        }
+            {
+              key: "",
+              value: "",
+              checked: true,
+            },
+          ],
+          type: EnvScopeEnum.LOCAL,
+          state: {
+            isSaveInProgress: false,
+          },
+        },
       },
       path: {
         workspaceId: _workspaceId,
@@ -68,14 +73,17 @@ class InitEnvironmentTab {
     this._tab.description = _description;
     return this;
   }
-  public setVariable(_variable) {
-    this._tab.property.environment.variable = _variable;
+  public setVariable(_variable: EnvVariableType[]) {
+    if (this._tab?.property?.environment?.variable) {
+      this._tab.property.environment.variable = _variable;
+    }
     return this;
   }
 
-  
-  public setType(_type: string) {
-    this._tab.property.environment.type = _type;
+  public setType(_type: EnvScopeEnum) {
+    if (this._tab?.property?.environment?.type) {
+      this._tab.property.environment.type = _type;
+    }
     return this;
   }
 }

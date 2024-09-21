@@ -20,6 +20,7 @@ import type {
   TimestampWrapper,
   TypeWrapper,
 } from "./common";
+import type { EnvTabItemWrapperType } from "./environment";
 
 export interface Property
   extends Partial<RequestWrapper>,
@@ -27,6 +28,7 @@ export interface Property
     Partial<CollectionWrapper>,
     Partial<WorkspaceWrapper>,
     Partial<WebSocketWrapper>,
+    Partial<EnvTabItemWrapperType>,
     Partial<TFTabItemWrapperType> {}
 
 export interface PropertyWrapper {

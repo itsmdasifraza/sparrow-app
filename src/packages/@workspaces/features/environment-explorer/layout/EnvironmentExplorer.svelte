@@ -13,13 +13,14 @@
   import { TabularInputV2 } from "@workspaces/common/components";
   import { Input } from "@library/forms";
   import { Carousel, Modal, Popover } from "@library/ui";
-  import { environmentType, WorkspaceRole } from "$lib/utils/enums";
+  import { WorkspaceRole } from "$lib/utils/enums";
   import {
     CreateENV,
     IntroToEnvironment,
     SearchVariable,
   } from "@workspaces/common/constants";
   import { WithButtonV3 } from "@workspaces/common/hoc";
+  import { EnvScopeEnum } from "@common/types/workspace/environment";
 
   /**
    * selected environmet to be shown on API
@@ -38,8 +39,8 @@
    */
   export let onSaveEnvironment;
 
-  export let onFetchEnvironmentGuide: (query) => void;
-  export let onUpdateEnvironmentGuide: (query, isActive) => void;
+  export let onFetchEnvironmentGuide;
+  export let onUpdateEnvironmentGuide;
   export let userRole;
   let isPopoverContainer = false;
 
@@ -51,10 +52,6 @@
       environmentName = $currentEnvironment?.name;
     }
   }
-
-  const handleCurrentEnvironmentNameChange = (_name, event) => {
-    onUpdateName(_name, event);
-  };
 
   const closeEnvHelpText = () => {
     onUpdateEnvironmentGuide({ id: "environment-guide" }, false);
@@ -92,7 +89,7 @@
         style="position: relative ;"
       >
         <!--Disabling the Quick Help feature, will be taken up in next release-->
-        {#if $currentEnvironment?.property?.environment?.type === environmentType.GLOBAL}
+        {#if $currentEnvironment?.property?.environment?.type === EnvScopeEnum.GLOBAL}
           <button
             class="btn p-0"
             style="position: absolute; left:150px;  top:22.5px; border:none; z-index:5; curser:pointer;"
@@ -125,10 +122,10 @@
           type="text"
           bind:value={environmentName}
           on:input={(e) => {
-            handleCurrentEnvironmentNameChange(environmentName, "");
+            onUpdateName(environmentName, "");
           }}
           on:blur={(e) => {
-            handleCurrentEnvironmentNameChange(environmentName, "blur");
+            onUpdateName(environmentName, "blur");
           }}
           defaultBorderColor="transparent"
           hoveredBorderColor={"var(--border-primary-300)"}
@@ -186,7 +183,7 @@
       </header>
       <!--Disabling the Quick Help feature, will be taken up in next release-->
       <div>
-        {#if isPopoverContainer && $currentEnvironment?.property?.environment?.type === environmentType.GLOBAL}
+        {#if isPopoverContainer && $currentEnvironment?.property?.environment?.type === EnvScopeEnum.GLOBAL}
           <Popover
             heading={`Welcome to Environments!`}
             text={` `}

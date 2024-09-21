@@ -14,7 +14,6 @@
   import { isWorkspaceLoaded } from "$lib/store/workspace.store";
   import EnvironmentTab from "./sub-components/environment-tab/EnvironmentTab.svelte";
   import { generateSampleEnvironment } from "$lib/utils/sample/environment.sample";
-  import { environmentType } from "$lib/utils/enums/environment.enum";
   import MixpanelEvent from "$lib/utils/mixpanel/MixpanelEvent";
   import { Events } from "$lib/utils/enums/mixpanel-events.enum";
   import List from "@library/ui/list/List.svelte";
@@ -24,6 +23,7 @@
     workspaceLevelPermissions,
   } from "$lib/utils/constants/permissions.constant";
   import { hasWorkpaceLevelPermission } from "$lib/utils/helpers";
+  import { EnvScopeEnum } from "@common/types/workspace/environment";
 
   export let environmentRepositoryMethods: EnvironmentRepositoryMethods;
   export let environmentServiceMethods: EnvironmentServiceMethods;
@@ -74,7 +74,7 @@
     );
     sampleEnvironment.name = globalEnvironment[0]?.name;
     sampleEnvironment.isActive = true;
-    sampleEnvironment.type = environmentType.GLOBAL;
+    sampleEnvironment.type = EnvScopeEnum.GLOBAL;
     sampleEnvironment.variable = globalEnvironment[0]?.variable;
     environmentRepositoryMethods.createEnvironmentTab(
       sampleEnvironment,

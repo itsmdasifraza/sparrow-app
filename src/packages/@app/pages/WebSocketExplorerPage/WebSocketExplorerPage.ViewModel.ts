@@ -50,8 +50,9 @@ import type { CollectionDocType } from "@app/models/collection.model";
 import { WebSocketService } from "@app/services/web-socket.service";
 import { webSocketDataStore } from "@workspaces/features/socket-explorer/store";
 import { InitTab } from "@common/factory";
+import type { EnvExtractedByWorkspaceType } from "@common/types/workspace/environment";
 
-class RestExplorerViewModel {
+class WebSocketExplorerPageViewModel {
   /**
    * Repository
    */
@@ -73,7 +74,7 @@ class RestExplorerViewModel {
    * Utils
    */
 
-  private _tab: BehaviorSubject<Tab> = new BehaviorSubject({});
+  private _tab = new BehaviorSubject<Partial<Tab>>({});
 
   public constructor(doc: TabDocument) {
     if (doc?.isActive) {
@@ -94,11 +95,11 @@ class RestExplorerViewModel {
     return this.environmentRepository.getEnvironment();
   }
 
-  public get tab(): Observable<Tab> {
+  public get tab(): Observable<Partial<Tab>> {
     return this._tab.asObservable();
   }
 
-  private set tab(value: Tab) {
+  private set tab(value: Partial<Tab>) {
     this._tab.next(value);
   }
 
@@ -623,8 +624,8 @@ class RestExplorerViewModel {
    * @returns save status
    */
   public saveSocket = async () => {
-    const componentData: Tab = this._tab.getValue();
-    const { folderId, collectionId, workspaceId } = componentData.path;
+    const componentData = this._tab.getValue() as Tab;
+    const { folderId, collectionId, workspaceId } = componentData?.path;
 
     if (!workspaceId || !collectionId) {
       return {
@@ -692,7 +693,10 @@ class RestExplorerViewModel {
 
       progressiveTab.isSaved = true;
       this.tab = progressiveTab;
-      await this.tabRepository.updateTab(progressiveTab.tabId, progressiveTab);
+      await this.tabRepository.updateTab(
+        progressiveTab?.tabId as string,
+        progressiveTab,
+      );
       if (!folderId) {
         this.collectionRepository.updateRequestOrFolderInCollection(
           collectionId,
@@ -724,7 +728,10 @@ class RestExplorerViewModel {
       const progressiveTab = this._tab.getValue();
       progressiveTab.isSaved = true;
       this.tab = progressiveTab;
-      await this.tabRepository.updateTab(progressiveTab.tabId, progressiveTab);
+      await this.tabRepository.updateTab(
+        progressiveTab?.tabId as string,
+        progressiveTab,
+      );
       if (!folderId) {
         this.collectionRepository.updateRequestOrFolderInCollection(
           collectionId,
@@ -871,8 +878,8 @@ class RestExplorerViewModel {
             workspaceId: _workspaceMeta.id,
           };
           if (
-            !componentData.path.workspaceId ||
-            !componentData.path.collectionId
+            !componentData?.path?.workspaceId ||
+            !componentData?.path?.collectionId
           ) {
             /**
              * Update existing request
@@ -885,7 +892,7 @@ class RestExplorerViewModel {
             progressiveTab.isSaved = true;
             this.tab = progressiveTab;
             await this.tabRepository.updateTab(
-              progressiveTab.tabId,
+              progressiveTab?.tabId as string,
               progressiveTab,
             );
           } else {
@@ -934,8 +941,8 @@ class RestExplorerViewModel {
             workspaceId: _workspaceMeta.id,
           };
           if (
-            !componentData.path.workspaceId ||
-            !componentData.path.collectionId
+            !componentData?.path?.workspaceId ||
+            !componentData?.path?.collectionId
           ) {
             /**
              * Update existing request
@@ -948,7 +955,7 @@ class RestExplorerViewModel {
             progressiveTab.isSaved = true;
             this.tab = progressiveTab;
             await this.tabRepository.updateTab(
-              progressiveTab.tabId,
+              progressiveTab?.tabId as string,
               progressiveTab,
             );
           } else {
@@ -1010,8 +1017,8 @@ class RestExplorerViewModel {
             workspaceId: _workspaceMeta.id,
           };
           if (
-            !componentData.path.workspaceId ||
-            !componentData.path.collectionId
+            !componentData?.path?.workspaceId ||
+            !componentData?.path?.collectionId
           ) {
             await this.updateRequestName(req.name);
             await this.updateRequestDescription(req.description);
@@ -1021,7 +1028,7 @@ class RestExplorerViewModel {
             progressiveTab.isSaved = true;
             this.tab = progressiveTab;
             await this.tabRepository.updateTab(
-              progressiveTab.tabId,
+              progressiveTab?.tabId as string,
               progressiveTab,
             );
           } else {
@@ -1074,8 +1081,8 @@ class RestExplorerViewModel {
             workspaceId: _workspaceMeta.id,
           };
           if (
-            !componentData.path.workspaceId ||
-            !componentData.path.collectionId
+            !componentData?.path?.workspaceId ||
+            !componentData?.path?.collectionId
           ) {
             this.updateRequestName(res.data.data.name);
             this.updateRequestDescription(res.data.data.description);
@@ -1084,7 +1091,10 @@ class RestExplorerViewModel {
             const progressiveTab = this._tab.getValue();
             progressiveTab.isSaved = true;
             this.tab = progressiveTab;
-            this.tabRepository.updateTab(progressiveTab.tabId, progressiveTab);
+            this.tabRepository.updateTab(
+              progressiveTab?.tabId as string,
+              progressiveTab,
+            );
           } else {
             const initSocketTab = new InitWebSocketTab(
               res.data.data.id,
@@ -1129,7 +1139,7 @@ class RestExplorerViewModel {
    */
   public updateEnvironment = async (
     isGlobalVariable: boolean,
-    environmentVariables,
+    environmentVariables: EnvExtractedByWorkspaceType,
     newVariableObj: KeyValue,
   ) => {
     let isGuestUser;
@@ -1188,7 +1198,7 @@ class RestExplorerViewModel {
         };
       }
       const response = await this.environmentService.updateEnvironment(
-        this._tab.getValue().path.workspaceId,
+        this._tab?.getValue()?.path?.workspaceId as string,
         environmentVariables.global.id,
         payload,
       );
@@ -1272,7 +1282,7 @@ class RestExplorerViewModel {
       }
       // api response
       const response = await this.environmentService.updateEnvironment(
-        this._tab.getValue().path.workspaceId,
+        this._tab?.getValue()?.path?.workspaceId as string,
         environmentVariables.local.id,
         payload,
       );
@@ -1439,41 +1449,43 @@ class RestExplorerViewModel {
     return await this.workspaceRepository.readWorkspace(workspaceId);
   };
 
-  public connectWebsocket = async (environmentVariables) => {
+  public connectWebsocket = async (
+    environmentVariables: EnvExtractedByWorkspaceType,
+  ) => {
     const websocketData = this._tab.getValue();
 
     const decodeData = new DecodeWebsocket().init(
-      this._tab.getValue().property.websocket,
+      this._tab?.getValue()?.property?.websocket,
       environmentVariables?.filtered || [],
     );
 
     return await this.webSocketService.connectWebsocket(
       decodeData[0] as string,
-      websocketData.tabId,
+      websocketData?.tabId as string,
       decodeData[1],
     );
   };
   public disconnectWebsocket = async () => {
     const websocketData = this._tab.getValue();
     return await this.webSocketService.disconnectWebsocket(
-      websocketData?.tabId,
+      websocketData?.tabId as string,
     );
   };
   public sendMessageWebsocket = async () => {
     const websocketData = this._tab.getValue();
     return await this.webSocketService.sendMessageWebsocket(
-      websocketData.tabId,
-      websocketData.property.websocket?.message as string,
+      websocketData?.tabId as string,
+      websocketData?.property?.websocket?.message as string,
     );
   };
 
   public searchMessages = async (_search: string) => {
     const websocketData = this._tab.getValue();
     webSocketDataStore.update((webSocketDataMap) => {
-      const wsData = webSocketDataMap.get(websocketData.tabId);
+      const wsData = webSocketDataMap.get(websocketData?.tabId as string);
       if (wsData) {
         wsData.search = _search;
-        webSocketDataMap.set(websocketData.tabId, wsData);
+        webSocketDataMap.set(websocketData?.tabId as string, wsData);
       }
       return webSocketDataMap;
     });
@@ -1482,12 +1494,12 @@ class RestExplorerViewModel {
   public deleteMessages = async () => {
     const websocketData = this._tab.getValue();
     webSocketDataStore.update((webSocketDataMap) => {
-      const wsData = webSocketDataMap.get(websocketData.tabId);
+      const wsData = webSocketDataMap.get(websocketData?.tabId as string);
       if (wsData) {
         wsData.search = "";
         wsData.messages = [];
         wsData.body = "";
-        webSocketDataMap.set(websocketData.tabId, wsData);
+        webSocketDataMap.set(websocketData?.tabId as string, wsData);
       }
       return webSocketDataMap;
     });
@@ -1497,10 +1509,10 @@ class RestExplorerViewModel {
   public updateContentType = async (_contentType: string) => {
     const websocketData = this._tab.getValue();
     webSocketDataStore.update((webSocketDataMap) => {
-      const wsData = webSocketDataMap.get(websocketData.tabId);
+      const wsData = webSocketDataMap.get(websocketData?.tabId as string);
       if (wsData) {
         wsData.contentType = _contentType;
-        webSocketDataMap.set(websocketData.tabId, wsData);
+        webSocketDataMap.set(websocketData?.tabId as string, wsData);
       }
       return webSocketDataMap;
     });
@@ -1509,22 +1521,24 @@ class RestExplorerViewModel {
   public updateMessageBody = async (_body: string) => {
     const websocketData = this._tab.getValue();
     webSocketDataStore.update((webSocketDataMap) => {
-      const wsData = webSocketDataMap.get(websocketData.tabId);
+      const wsData = webSocketDataMap.get(websocketData?.tabId as string);
       if (wsData) {
         wsData.body = _body;
-        webSocketDataMap.set(websocketData.tabId, wsData);
+        webSocketDataMap.set(websocketData?.tabId as string, wsData);
       }
       return webSocketDataMap;
     });
   };
 
-  public updateFilterType = async (_filterType: string) => {
+  public updateFilterType = async (
+    _filterType: "Sent" | "All messages" | "Received",
+  ) => {
     const websocketData = this._tab.getValue();
     webSocketDataStore.update((webSocketDataMap) => {
-      const wsData = webSocketDataMap.get(websocketData.tabId);
+      const wsData = webSocketDataMap.get(websocketData?.tabId as string);
       if (wsData) {
         wsData.filter = _filterType;
-        webSocketDataMap.set(websocketData.tabId, wsData);
+        webSocketDataMap.set(websocketData?.tabId as string, wsData);
       }
       return webSocketDataMap;
     });
@@ -1540,5 +1554,4 @@ class RestExplorerViewModel {
     notifications.success("Cleared all inputs successfully.");
   };
 }
-
-export default RestExplorerViewModel;
+export { WebSocketExplorerPageViewModel };

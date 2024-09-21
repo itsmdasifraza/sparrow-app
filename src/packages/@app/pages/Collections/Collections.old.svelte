@@ -17,7 +17,6 @@
     WorkspaceDocument,
   } from "@app/database/database";
   import type { Observable } from "rxjs";
-  import { environmentType } from "$lib/utils/enums/environment.enum";
   import { ActiveSideBarTabReposistory } from "@app/repositories/active-sidebar-tab.repository";
   import type { WorkspaceRole } from "$lib/utils/enums";
   import { Pane, Splitpanes } from "svelte-splitpanes";
@@ -125,7 +124,7 @@
           })
           .filter((elem) => {
             if (
-              elem.type === environmentType.GLOBAL ||
+              elem.type === EnvScopeEnum.GLOBAL ||
               elem.id === environmentId
             ) {
               return true;
@@ -140,7 +139,7 @@
                 environmentVariables.push({
                   key: variable.key,
                   value: variable.value,
-                  type: temp.type === environmentType.GLOBAL ? "G" : "E",
+                  type: temp.type === EnvScopeEnum.GLOBAL ? "G" : "E",
                   environment: temp.name,
                 });
               }

@@ -10,7 +10,6 @@
   import { notifications } from "@library/ui/toast/Toast";
   import QuickHelp from "./sub-components/quick-help/QuickHelp.svelte";
   import Spinner from "@library/ui/spinner/Spinner.svelte";
-  import { environmentType } from "$lib/utils/enums/environment.enum";
   import MixpanelEvent from "$lib/utils/mixpanel/MixpanelEvent";
   import { Events } from "$lib/utils/enums/mixpanel-events.enum";
   import type { WorkspaceRole } from "$lib/utils/enums";
@@ -20,6 +19,7 @@
     workspaceLevelPermissions,
   } from "$lib/utils/constants/permissions.constant";
   import Tooltip from "@library/ui/tooltip/Tooltip.svelte";
+  import { EnvScopeEnum } from "@common/types/workspace/environment";
 
   export let environmentRepositoryMethods: EnvironmentRepositoryMethods;
   export let environmentServiceMethods: EnvironmentServiceMethods;
@@ -94,7 +94,7 @@
         );
       }
     }
-    if (currentEnvironment.type === environmentType.GLOBAL) {
+    if (currentEnvironment.type === EnvScopeEnum.GLOBAL) {
       MixpanelEvent(Events.SAVE_GLOBAL_ENVIRONMENT_VARIABLES, {
         environmentName: currentEnvironment.name,
         environmanetId: currentEnvironment.id,

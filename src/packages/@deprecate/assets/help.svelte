@@ -1,7 +1,7 @@
 <script lang="ts">
-  export let color: string = "#8A9299",
-    width: number = 24,
-    height: number = 24;
+  export let color = "#8A9299";
+  export let width = "24px";
+  export let height = "24px";
 </script>
 
 <svg

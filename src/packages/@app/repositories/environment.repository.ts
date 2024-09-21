@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RxDB, type EnvironmentDocument } from "@app/database/database";
-import { environmentType } from "$lib/utils/enums/environment.enum";
+import { EnvScopeEnum } from "@common/types/workspace/environment";
 import type { Observable } from "rxjs";
 
 export class EnvironmentRepository {
@@ -70,7 +70,7 @@ export class EnvironmentRepository {
       .rxdb.environment.findOne({
         selector: {
           workspaceId: _workspaceId,
-          type: environmentType.GLOBAL,
+          type: EnvScopeEnum.GLOBAL,
         },
       })
       .exec();

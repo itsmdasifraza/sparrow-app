@@ -6,14 +6,18 @@
     AiChatToggler,
     AISuggestionBox,
   } from "../components";
-  import { MessageTypeEnum, type RequestTab } from "@common/types/workspace";
+  import {
+    MessageTypeEnum,
+    type Conversation,
+    type Tab,
+  } from "@common/types/workspace";
   import { CrossIcon } from "@library/icons";
   import { onMount } from "svelte";
   import MixpanelEvent from "$lib/utils/mixpanel/MixpanelEvent";
   import { Events } from "$lib/utils/enums";
   import type { ScrollList } from "../types";
 
-  export let tab: Observable<RequestTab>;
+  export let tab: Observable<Partial<Tab>>;
   export let onUpdateAiPrompt;
   export let onUpdateAiConversation;
   export let onUpdateRequestState;
@@ -25,7 +29,7 @@
   const sendPrompt = async (text: string) => {
     if (text) {
       onUpdateAiConversation([
-        ...$tab?.property?.request?.ai?.conversations,
+        ...($tab?.property?.request?.ai?.conversations || []),
         {
           message: text,
           messageId: "",
@@ -53,9 +57,9 @@
 
   const regenerateAiResponse = async () => {
     const regenerateConversation =
-      $tab?.property?.request?.ai?.conversations.slice(0, -1);
+      $tab?.property?.request?.ai?.conversations.slice(0, -1) as Conversation[];
     onUpdateAiConversation(regenerateConversation);
-    const response = await onGenerateAiResponse(
+    await onGenerateAiResponse(
       regenerateConversation[regenerateConversation.length - 1].message,
       MixpanelEvent(Events.AI_Regenerate_Response),
     );

@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Select } from "@library/forms";
   import { CloudOffIcon, SparrowEdgeIcon, StackIcon } from "@library/icons";
-  import { environmentType } from "$lib/utils/enums";
   import { ArrowIcon } from "@library/icons";
   import { DownArrowIcon } from "$lib/assets/icons";
   import ArrowUnfilled from "@library/icons/ArrowUnfilled.svelte";
@@ -134,6 +133,7 @@
   import profile from "$lib/assets/profileTab.svg";
   import hoveredProfile from "$lib/assets/profile-hovered.svg";
   import selectedProfile from "$lib/assets/profile-selected.svg";
+  import { EnvScopeEnum } from "@common/types/workspace/environment";
 
   let sidebarModalItem: UserProfileObj = {
     heading: "Profile",
@@ -289,18 +289,18 @@
         {
           name: "Select Environment",
           id: "none",
-          type: environmentType.LOCAL,
+          type: EnvScopeEnum.LOCAL,
           hide: true,
         },
         {
           name: "None",
           id: "none",
           display: "none",
-          type: environmentType.LOCAL,
+          type: EnvScopeEnum.LOCAL,
         },
         ...environments,
       ].filter((elem) => {
-        return elem.type === environmentType.LOCAL;
+        return elem.type === EnvScopeEnum.LOCAL;
       })}
       titleId={currentEnvironment?.id}
       onclick={handleDropdown}

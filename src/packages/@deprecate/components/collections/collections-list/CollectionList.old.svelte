@@ -55,7 +55,6 @@
   import { notifications } from "@library/ui/toast/Toast";
   import Spinner from "@library/ui/spinner/Spinner.svelte";
   import EnvironmentDropdown from "$lib/components/dropdown/EnvironmentDropdown.svelte";
-  import { environmentType } from "$lib/utils/enums/environment.enum";
   import { createCollectionSource } from "$lib/store/event-source.store";
   import MixpanelEvent from "$lib/utils/mixpanel/MixpanelEvent";
   import { Events } from "$lib/utils/enums/mixpanel-events.enum";
@@ -67,6 +66,7 @@
   import { hasWorkpaceLevelPermission } from "$lib/utils/helpers/common.helper";
   import List from "@library/ui/list/List.svelte";
   import ImportCurl from "./import-curl/ImportCurl.svelte";
+  import { EnvScopeEnum } from "@common/types/workspace/environment";
 
   const [, , searchNode] = useTree();
   let collection: any[];
@@ -497,12 +497,12 @@
           {
             name: "None",
             id: "none",
-            type: environmentType.LOCAL,
+            type: EnvScopeEnum.LOCAL,
           },
           ...environments,
         ].filter((elem) => {
           elem["dynamicClasses"] = "text-whiteColor";
-          return elem.type === environmentType.LOCAL;
+          return elem.type === EnvScopeEnum.LOCAL;
         })}
         additionalType={"environment"}
         onclick={handleDropdown}

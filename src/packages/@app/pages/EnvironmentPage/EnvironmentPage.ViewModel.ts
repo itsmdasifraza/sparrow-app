@@ -3,13 +3,16 @@ import { EnvironmentRepository } from "@app/repositories/environment.repository"
 import { WorkspaceRepository } from "@app/repositories/workspace.repository";
 import { EnvironmentService } from "@app/services/environment.service";
 import { Events, UntrackedItems } from "$lib/utils/enums";
-import { environmentType } from "$lib/utils/enums/environment.enum";
 import MixpanelEvent from "$lib/utils/mixpanel/MixpanelEvent";
 import { InitTab } from "@common/factory";
 import { v4 as uuidv4 } from "uuid";
-import { GuideRepository } from "@app/repositories/guide.repository";
 import { GuestUserRepository } from "@app/repositories/guest-user.repository";
 import { TabRepository } from "@app/repositories/tab.repository";
+import {
+  EnvScopeEnum,
+  type EnvDocumentType,
+} from "@common/types/workspace/environment";
+import type { Tab } from "@common/types/workspace";
 
 export class EnvironmentViewModel {
   private workspaceRepository = new WorkspaceRepository();
@@ -98,7 +101,7 @@ export class EnvironmentViewModel {
    * @param localEnvironment - new environment data
    * @returns
    */
-  public onCreateEnvironment = async (localEnvironment) => {
+  public onCreateEnvironment = async (localEnvironment: EnvDocumentType[]) => {
     const currentWorkspace =
       await this.workspaceRepository.getActiveWorkspaceDoc();
     const newEnvironment = {
@@ -171,14 +174,14 @@ export class EnvironmentViewModel {
    * @description - create a global environment tab
    * @param environment - environment data
    */
-  public onOpenGlobalEnvironment = (environment) => {
+  public onOpenGlobalEnvironment = (environment: EnvDocumentType) => {
     const initEnvironmentTab = this.initTab.environment(
       environment?.id,
       environment.workspaceId,
     );
     initEnvironmentTab
       .setName(environment?.name)
-      .setType(environmentType.GLOBAL)
+      .setType(EnvScopeEnum.GLOBAL)
       .setVariable(environment?.variable);
     this.tabRepository.createTab(initEnvironmentTab.getValue());
   };
@@ -188,7 +191,7 @@ export class EnvironmentViewModel {
    * @param env - environment needs to be deleted
    * @returns
    */
-  public onDeleteEnvironment = async (env) => {
+  public onDeleteEnvironment = async (env: EnvDocumentType) => {
     const currentWorkspace = await this.workspaceRepository.readWorkspace(
       env.workspaceId,
     );
@@ -238,7 +241,10 @@ export class EnvironmentViewModel {
    * @param env  - environment that need to be updated
    * @param newEnvironmentName - new environment data
    */
-  public onUpdateEnvironment = async (env, newEnvironmentName: string) => {
+  public onUpdateEnvironment = async (
+    env: EnvDocumentType,
+    newEnvironmentName: string,
+  ) => {
     const currentWorkspace = await this.workspaceRepository.readWorkspace(
       env.workspaceId,
     );
@@ -286,7 +292,7 @@ export class EnvironmentViewModel {
    * @description - creates new local environment tab
    * @param env - environment that needs to be opened
    */
-  public onOpenEnvironment = async (env) => {
+  public onOpenEnvironment = async (env: EnvDocumentType) => {
     const currentWorkspace = await this.workspaceRepository.readWorkspace(
       env.workspaceId,
     );
@@ -304,7 +310,7 @@ export class EnvironmentViewModel {
    * @description - selects the environment
    * @param env  - environment that needs to be selected
    */
-  public onSelectEnvironment = async (env) => {
+  public onSelectEnvironment = async (env: EnvDocumentType) => {
     const currentWorkspace = await this.workspaceRepository.readWorkspace(
       env.workspaceId,
     );
@@ -322,7 +328,7 @@ export class EnvironmentViewModel {
   /**
    * @description - saves environment to the mongo server
    */
-  public saveEnvironment = async (_tab) => {
+  public saveEnvironment = async (_tab: Tab) => {
     const currentEnvironment = _tab;
     const activeWorkspace = await this.workspaceRepository.readWorkspace(
       currentEnvironment.path.workspaceId,
@@ -373,17 +379,11 @@ export class EnvironmentViewModel {
         );
       }
     }
-    if (currentEnvironment.type === environmentType.GLOBAL) {
-      MixpanelEvent(Events.SAVE_GLOBAL_ENVIRONMENT_VARIABLES, {
-        environmentName: currentEnvironment.name,
-        environmanetId: currentEnvironment.id,
-      });
-    } else {
-      MixpanelEvent(Events.SAVE_LOCAL_ENVIRONMENT_VARIABLES, {
-        environmentName: currentEnvironment.name,
-        environmanetId: currentEnvironment.id,
-      });
-    }
+
+    MixpanelEvent(Events.SAVE_LOCAL_ENVIRONMENT_VARIABLES, {
+      environmentName: currentEnvironment.name,
+      environmanetId: currentEnvironment.id,
+    });
 
     return false;
   };

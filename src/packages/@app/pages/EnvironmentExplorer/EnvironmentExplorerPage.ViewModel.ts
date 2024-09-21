@@ -3,7 +3,6 @@ import { EnvironmentRepository } from "@app/repositories/environment.repository"
 import { WorkspaceRepository } from "@app/repositories/workspace.repository";
 import { EnvironmentService } from "@app/services/environment.service";
 import { Events } from "$lib/utils/enums";
-import { environmentType } from "$lib/utils/enums/environment.enum";
 import { createDeepCopy } from "$lib/utils/helpers";
 import MixpanelEvent from "$lib/utils/mixpanel/MixpanelEvent";
 import { BehaviorSubject, type Observable } from "rxjs";
@@ -11,6 +10,10 @@ import { GuideRepository } from "@app/repositories/guide.repository";
 import { GuestUserRepository } from "@app/repositories/guest-user.repository";
 import { TabRepository } from "@app/repositories/tab.repository";
 import { Debounce, CompareArray } from "@common/utils";
+import { type EnvTabStateType } from "@common/types/workspace/environment";
+import type { Tab } from "@common/types/workspace";
+import type { TabDocument } from "@app/database/database";
+import type { GuideQuery } from "@app/types/user-guide";
 
 export class EnvironmentExplorerViewModel {
   private workspaceRepository = new WorkspaceRepository();
@@ -18,11 +21,11 @@ export class EnvironmentExplorerViewModel {
   private environmentService = new EnvironmentService();
   private guideRepository = new GuideRepository();
   private guestUserRepository = new GuestUserRepository();
-  private _tab: BehaviorSubject<any> = new BehaviorSubject({});
+  private _tab = new BehaviorSubject<Partial<Tab>>({});
   private tabRepository = new TabRepository();
   private compareArray = new CompareArray();
 
-  public constructor(doc) {
+  public constructor(doc: TabDocument) {
     if (doc?.isActive) {
       setTimeout(() => {
         const t = createDeepCopy(doc.toMutableJSON());
@@ -145,7 +148,7 @@ export class EnvironmentExplorerViewModel {
    *
    * @param _state - request state
    */
-  public updateEnvironmentState = async (_state) => {
+  public updateEnvironmentState = async (_state: Partial<EnvTabStateType>) => {
     const progressiveTab = createDeepCopy(this._tab.getValue());
     progressiveTab.property.environment.state = {
       ...progressiveTab.property.environment.state,
@@ -161,7 +164,7 @@ export class EnvironmentExplorerViewModel {
   public saveEnvironment = async () => {
     const currentEnvironment = this._tab.getValue();
     const activeWorkspace = await this.workspaceRepository.readWorkspace(
-      currentEnvironment.path.workspaceId,
+      currentEnvironment?.path?.workspaceId as string,
     );
     await this.updateEnvironmentState({ isSaveInProgress: true });
     const guestUser = await this.guestUserRepository.findOne({
@@ -170,7 +173,7 @@ export class EnvironmentExplorerViewModel {
     const isGuestUser = guestUser?.getLatest().toMutableJSON().isGuestUser;
     if (isGuestUser) {
       await this.environmentRepository.updateEnvironment(
-        currentEnvironment.id,
+        currentEnvironment?.id as string,
         {
           name: currentEnvironment.name,
           variable: currentEnvironment?.property?.environment?.variable,
@@ -179,7 +182,10 @@ export class EnvironmentExplorerViewModel {
       const progressiveTab = this._tab.getValue();
       progressiveTab.isSaved = true;
       this.tab = progressiveTab;
-      await this.tabRepository.updateTab(progressiveTab.tabId, progressiveTab);
+      await this.tabRepository.updateTab(
+        progressiveTab?.tabId as string,
+        progressiveTab,
+      );
       await this.updateEnvironmentState({
         isSaveInProgress: false,
       });
@@ -192,7 +198,7 @@ export class EnvironmentExplorerViewModel {
 
     const response = await this.environmentService.updateEnvironment(
       activeWorkspace._id,
-      currentEnvironment.id,
+      currentEnvironment?.id as string,
       {
         name: currentEnvironment.name,
         variable: currentEnvironment?.property?.environment?.variable,
@@ -206,7 +212,10 @@ export class EnvironmentExplorerViewModel {
       const progressiveTab = this._tab.getValue();
       progressiveTab.isSaved = true;
       this.tab = progressiveTab;
-      await this.tabRepository.updateTab(progressiveTab.tabId, progressiveTab);
+      await this.tabRepository.updateTab(
+        progressiveTab?.tabId as string,
+        progressiveTab,
+      );
       await this.updateEnvironmentState({
         isSaveInProgress: false,
       });
@@ -223,17 +232,11 @@ export class EnvironmentExplorerViewModel {
         );
       }
     }
-    if (currentEnvironment.type === environmentType.GLOBAL) {
-      MixpanelEvent(Events.SAVE_GLOBAL_ENVIRONMENT_VARIABLES, {
-        environmentName: currentEnvironment.name,
-        environmanetId: currentEnvironment.id,
-      });
-    } else {
-      MixpanelEvent(Events.SAVE_LOCAL_ENVIRONMENT_VARIABLES, {
-        environmentName: currentEnvironment.name,
-        environmanetId: currentEnvironment.id,
-      });
-    }
+
+    MixpanelEvent(Events.SAVE_LOCAL_ENVIRONMENT_VARIABLES, {
+      environmentName: currentEnvironment.name,
+      environmanetId: currentEnvironment.id,
+    });
   };
   /**
    * Fetches an environment guide based on the provided query.
@@ -241,7 +244,7 @@ export class EnvironmentExplorerViewModel {
    * @param query - The query object used to find the environment guide.
    * @returns - A promise that resolves to the environment guide found by the query.
    */
-  public fetchEnvironmentGuide = async (query) => {
+  public fetchEnvironmentGuide = async (query: GuideQuery) => {
     return this.guideRepository.findOne(query);
   };
 
@@ -252,7 +255,10 @@ export class EnvironmentExplorerViewModel {
    * @param isActive - The new active status to set for the environment guide.
    * @returns - A promise that resolves when the update operation is complete.
    */
-  public updateEnvironmentGuide = async (query, isActive) => {
+  public updateEnvironmentGuide = async (
+    query: GuideQuery,
+    isActive: boolean,
+  ) => {
     await this.guideRepository.update(query, {
       isActive: isActive,
     });

@@ -10,7 +10,7 @@
   export let tab;
   const _viewModel = new EnvironmentExplorerViewModel(tab);
   const renameWithEnvironmentList = new Debounce().debounce(
-    _viewModel.updateNameWithEnvironmentList,
+    _viewModel.updateNameWithEnvironmentList as any,
     1000,
   );
 
@@ -30,7 +30,7 @@
     if (workspace) {
       workspace.users?.forEach((value) => {
         if (value.id === userId) {
-          userRole = value.role;
+          userRole = value.role as string;
         }
       });
     }

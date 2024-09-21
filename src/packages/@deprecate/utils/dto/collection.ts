@@ -60,13 +60,17 @@ export interface ImportBodyUrl {
   currentBranch: string;
 }
 
-interface CollectionItemsPayload {
+export interface CollectionItemsPayload {
   name?: string;
   type?: string;
   id?: string;
   description?: string;
   request?: {
-    method: string;
+    method?: any;
+    url?: any;
+    body?: any;
+    queryParams: any;
+    headers: any;
   };
   items?: CollectionItemsPayload;
 }

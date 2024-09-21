@@ -1,13 +1,17 @@
 <script lang="ts">
   import type { WorkspaceDocument } from "@app/database/database";
-  import { environmentType } from "$lib/utils/enums";
-
   // ---- View Model
   import RestExplorerViewModel from "./RestExplorerPage.ViewModel";
   import { RestExplorer, ChatBot } from "@workspaces/features";
   import { Debounce } from "@common/utils";
   import { isGuestUserActive, user } from "$lib/store";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
+  import {
+    EnvScopeEnum,
+    type EnvDocumentType,
+    type EnvExtractedByWorkspaceType,
+    type EnvExtractVariableType,
+  } from "@common/types/workspace/environment";
   export let tab;
   let isLoginBannerActive = false;
   const _viewModel = new RestExplorerViewModel(tab);
@@ -28,11 +32,11 @@
   });
 
   const renameWithCollectionList = new Debounce().debounce(
-    _viewModel.updateNameWithCollectionList,
+    _viewModel.updateNameWithCollectionList as any,
     1000,
   );
   const debouncedAPIUpdater = new Debounce().debounce(
-    _viewModel?.refreshTabData,
+    _viewModel?.refreshTabData as any,
     1000,
   );
   let prevTabName = "";
@@ -60,12 +64,12 @@
     }
   }
 
-  let environmentVariables = [];
+  let environmentVariables: EnvExtractedByWorkspaceType;
   let environmentId: string;
   let currentWorkspaceId = "";
   let currentWorkspace;
 
-  const activeWorkspaceSubscribe = activeWorkspace.subscribe(
+  const activeWorkspaceSubscriber = activeWorkspace.subscribe(
     async (value: WorkspaceDocument) => {
       const activeWorkspaceRxDoc = value;
       if (activeWorkspaceRxDoc) {
@@ -75,6 +79,9 @@
       }
     },
   );
+  onDestroy(() => {
+    activeWorkspaceSubscriber.unsubscribe();
+  });
 
   /**
    * @description - refreshes the environment everytime workspace changes
@@ -83,39 +90,40 @@
     if ($environments && currentWorkspaceId) {
       if ($environments?.length > 0) {
         const filteredEnv = $environments
+          .map((it) => {
+            return it.toMutableJSON() as EnvDocumentType;
+          })
           .filter((elem) => {
             return elem.workspaceId === currentWorkspaceId;
           })
           .filter((elem) => {
             if (
-              elem.type === environmentType.GLOBAL ||
+              elem.type === EnvScopeEnum.GLOBAL ||
               elem.id === environmentId
             ) {
               return true;
             }
           });
         if (filteredEnv?.length > 0) {
-          let envs = [];
-          filteredEnv.forEach((elem) => {
-            environmentVariables = {
-              local: filteredEnv[1],
-              global: filteredEnv[0],
-              filtered: [],
-            };
-
-            const temp = elem.toMutableJSON();
+          let envs: EnvExtractVariableType[] = [];
+          environmentVariables = {
+            local: filteredEnv[1],
+            global: filteredEnv[0],
+            filtered: [],
+          };
+          filteredEnv.forEach((temp) => {
             temp.variable.forEach((variable) => {
               if (variable.key && variable.checked) {
                 envs.unshift({
                   key: variable.key,
                   value: variable.value,
-                  type: temp.type === environmentType.GLOBAL ? "G" : "E",
+                  type: temp.type === EnvScopeEnum.GLOBAL ? "G" : "E",
                   environment: temp.name,
                 });
               }
             });
-            environmentVariables.filtered = envs;
           });
+          environmentVariables.filtered = envs;
         }
       }
     }

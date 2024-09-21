@@ -33,7 +33,10 @@ import {
   ResponseStatusCode,
   UntrackedItems,
 } from "$lib/utils/enums";
-import type { CreateDirectoryPostBody } from "$lib/utils/dto";
+import type {
+  CollectionItemsPayload,
+  CreateDirectoryPostBody,
+} from "$lib/utils/dto";
 
 // ---- Service
 import { makeHttpRequestV2 } from "$lib/api/api.common";
@@ -84,6 +87,11 @@ import {
   type StatePartial,
   type Conversation,
   MessageTypeEnum,
+  type Tab,
+  type State,
+  type Request,
+  type CollectionItemsDto,
+  RequestMethodEnum,
 } from "@common/types/workspace";
 import { notifications } from "@library/ui/toast/Toast";
 import { RequestTabAdapter } from "@app/adapter/request-tab";
@@ -96,6 +104,7 @@ import { AiAssistantService } from "@app/services/ai-assistant.service";
 import type { GuideQuery } from "@app/types/user-guide";
 import { AiAssistantWebSocketService } from "@app/services/ai-assistant.ws.service";
 import type { Socket } from "socket.io-client";
+import type { EnvExtractedByWorkspaceType } from "@common/types/workspace/environment";
 
 class RestExplorerViewModel
   implements
@@ -157,7 +166,7 @@ class RestExplorerViewModel
     key: "",
     value: "",
   });
-  private _tab: BehaviorSubject<RequestTab> = new BehaviorSubject({});
+  private _tab = new BehaviorSubject<Partial<Tab>>({});
 
   public constructor(doc: TabDocument) {
     if (doc?.isActive) {
@@ -167,12 +176,12 @@ class RestExplorerViewModel
         delete t.index;
         this.tab = t;
         this.authHeader = new ReduceAuthHeader(
-          this._tab.getValue().property.request?.state,
-          this._tab.getValue().property.request?.auth,
+          this._tab?.getValue()?.property?.request?.state as State,
+          this._tab?.getValue()?.property?.request?.auth as Auth,
         ).getValue();
         this.authParameter = new ReduceAuthParameter(
-          this._tab.getValue().property.request?.state,
-          this._tab.getValue().property.request?.auth,
+          this._tab?.getValue()?.property?.request?.state as State,
+          this._tab?.getValue()?.property?.request?.auth as Auth,
         ).getValue();
       }, 0);
     }
@@ -186,11 +195,11 @@ class RestExplorerViewModel
     return this.environmentRepository.getEnvironment();
   }
 
-  public get tab(): Observable<RequestTab> {
+  public get tab(): Observable<Partial<Tab>> {
     return this._tab.asObservable();
   }
 
-  private set tab(value: RequestTab) {
+  private set tab(value: Partial<Tab>) {
     this._tab.next(value);
   }
 
@@ -248,7 +257,7 @@ class RestExplorerViewModel
     }
     // url
     else if (
-      requestServer.request.url !== progressiveTab.property.request.url
+      requestServer?.request?.url !== progressiveTab.property.request.url
     ) {
       result = false;
     }
@@ -260,7 +269,7 @@ class RestExplorerViewModel
     }
     // auth key
     else if (
-      requestServer.request.auth.apiKey.authKey !==
+      requestServer?.request?.auth?.apiKey?.authKey !==
       progressiveTab.property.request.auth.apiKey.authKey
     ) {
       result = false;
@@ -281,7 +290,7 @@ class RestExplorerViewModel
     }
     // username
     else if (
-      requestServer.request.auth.basicAuth.username !==
+      requestServer?.request?.auth?.basicAuth?.username !==
       progressiveTab.property.request.auth.basicAuth.username
     ) {
       result = false;
@@ -302,7 +311,7 @@ class RestExplorerViewModel
     }
     // raw code
     else if (
-      requestServer.request.body.raw !==
+      requestServer?.request?.body?.raw !==
       progressiveTab.property.request.body.raw
     ) {
       result = false;
@@ -319,14 +328,14 @@ class RestExplorerViewModel
     // form data
     else if (
       !this.compareArray.init(
-        requestServer.request.body.formdata.text,
-        unadaptedRequest.body.formdata.text,
+        requestServer?.request?.body?.formdata?.text,
+        unadaptedRequest?.body?.formdata?.text,
       )
     ) {
       result = false;
     } else if (
       !this.compareArray.init(
-        requestServer.request.body.formdata.file,
+        requestServer?.request?.body?.formdata?.file,
         unadaptedRequest.body.formdata.file,
       )
     ) {
@@ -663,15 +672,23 @@ class RestExplorerViewModel
   /**
    * @description send request
    */
-  public sendRequest = async (environmentVariables = []) => {
+  public sendRequest = async (
+    environmentVariables: EnvExtractedByWorkspaceType,
+  ) => {
     this.updateRequestState({ isSendRequestInProgress: true });
     const start = Date.now();
 
     const decodeData = this._decodeRequest.init(
-      this._tab.getValue().property.request,
+      this._tab?.getValue()?.property?.request as Request,
       environmentVariables.filtered || [],
     );
-    makeHttpRequestV2(...decodeData)
+    makeHttpRequestV2(
+      decodeData[0],
+      decodeData[1],
+      decodeData[2],
+      decodeData[3],
+      decodeData[4],
+    )
       .then((response) => {
         if (response.isSuccessful === false) {
           this.updateResponse({
@@ -693,11 +710,11 @@ class RestExplorerViewModel
           const formattedHeaders = Object.entries(
             response?.data?.headers || {},
           );
-          const responseHeaders = [];
+          const responseHeaders: KeyValue[] = [];
           formattedHeaders.forEach((elem) => {
             responseHeaders.push({
               key: elem[0],
-              value: elem[1],
+              value: elem[1] as string,
             });
           });
           let responseStatus = response.data.status;
@@ -747,11 +764,11 @@ class RestExplorerViewModel
    * @param uuid - request or folder id
    * @returns - request document
    */
-  public readRequestOrFolderInCollection = (
+  public readRequestOrFolderInCollection = async (
     collectionId: string,
     uuid: string,
-  ): Promise<object> => {
-    return this.collectionRepository.readRequestOrFolderInCollection(
+  ): Promise<CollectionItemsDto | undefined> => {
+    return await this.collectionRepository.readRequestOrFolderInCollection(
       collectionId,
       uuid,
     );
@@ -890,7 +907,18 @@ class RestExplorerViewModel
     });
 
     if (isGuestUser == true) {
-      const data = {
+      const data: {
+        _id?: string;
+        name: string;
+        totalRequests: number;
+        createdBy: string;
+        items: any[];
+        updatedBy: string;
+        createdAt: string;
+        createdby: string;
+        id?: string;
+        workspaceId?: string;
+      } = {
         _id: uuidv4(),
         name: _collectionName,
         totalRequests: 0,
@@ -962,7 +990,7 @@ class RestExplorerViewModel
    * @returns save status
    */
   public saveRequest = async () => {
-    const componentData: RequestTab = this._tab.getValue();
+    const componentData = this._tab.getValue() as Tab;
     const { folderId, collectionId, workspaceId } = componentData.path;
 
     if (!workspaceId || !collectionId) {
@@ -1031,7 +1059,10 @@ class RestExplorerViewModel
 
       progressiveTab.isSaved = true;
       this.tab = progressiveTab;
-      await this.tabRepository.updateTab(progressiveTab.tabId, progressiveTab);
+      await this.tabRepository.updateTab(
+        progressiveTab?.tabId as string,
+        progressiveTab,
+      );
       if (!folderId) {
         this.collectionRepository.updateRequestOrFolderInCollection(
           collectionId,
@@ -1056,14 +1087,17 @@ class RestExplorerViewModel
       workspaceId: workspaceId,
       ...folderSource,
       ...userSource,
-      items: itemSource,
+      items: itemSource as CollectionItemsPayload,
     });
 
     if (res.isSuccessful) {
       const progressiveTab = this._tab.getValue();
       progressiveTab.isSaved = true;
       this.tab = progressiveTab;
-      await this.tabRepository.updateTab(progressiveTab.tabId, progressiveTab);
+      await this.tabRepository.updateTab(
+        progressiveTab?.tabId as string,
+        progressiveTab,
+      );
       if (!folderId) {
         this.collectionRepository.updateRequestOrFolderInCollection(
           collectionId,
@@ -1211,7 +1245,7 @@ class RestExplorerViewModel
             workspaceId: _workspaceMeta.id,
           };
           if (
-            !componentData.path.workspaceId ||
+            !componentData?.path?.workspaceId ||
             !componentData.path.collectionId
           ) {
             /**
@@ -1225,7 +1259,7 @@ class RestExplorerViewModel
             progressiveTab.isSaved = true;
             this.tab = progressiveTab;
             await this.tabRepository.updateTab(
-              progressiveTab.tabId,
+              progressiveTab?.tabId as string,
               progressiveTab,
             );
           } else {
@@ -1236,12 +1270,18 @@ class RestExplorerViewModel
             initRequestTab.updateName(req.name);
             initRequestTab.updateDescription(req.description);
             initRequestTab.updatePath(expectedPath);
-            initRequestTab.updateUrl(req.request.url);
-            initRequestTab.updateMethod(req.request.method);
-            initRequestTab.updateBody(req.request.body);
-            initRequestTab.updateQueryParams(req.request.queryParams);
-            initRequestTab.updateAuth(req.request.auth);
-            initRequestTab.updateHeaders(req.request.headers);
+            initRequestTab.updateUrl(req?.request?.url as string);
+            initRequestTab.updateMethod(
+              req?.request?.method as RequestMethodEnum,
+            );
+            initRequestTab.updateBody(req?.request?.body as unknown as Body);
+            initRequestTab.updateQueryParams(
+              req?.request?.queryParams as KeyValueChecked[],
+            );
+            initRequestTab.updateAuth(req?.request?.auth as Auth);
+            initRequestTab.updateHeaders(
+              req.request.headers as KeyValueChecked[],
+            );
 
             this.tabRepository.createTab(initRequestTab.getValue());
             moveNavigation("right");
@@ -1278,7 +1318,7 @@ class RestExplorerViewModel
             workspaceId: _workspaceMeta.id,
           };
           if (
-            !componentData.path.workspaceId ||
+            !componentData?.path?.workspaceId ||
             !componentData.path.collectionId
           ) {
             /**
@@ -1292,7 +1332,7 @@ class RestExplorerViewModel
             progressiveTab.isSaved = true;
             this.tab = progressiveTab;
             await this.tabRepository.updateTab(
-              progressiveTab.tabId,
+              progressiveTab?.tabId as string,
               progressiveTab,
             );
           } else {
@@ -1354,7 +1394,7 @@ class RestExplorerViewModel
             workspaceId: _workspaceMeta.id,
           };
           if (
-            !componentData.path.workspaceId ||
+            !componentData?.path?.workspaceId ||
             !componentData.path.collectionId
           ) {
             await this.updateRequestName(req.name);
@@ -1365,7 +1405,7 @@ class RestExplorerViewModel
             progressiveTab.isSaved = true;
             this.tab = progressiveTab;
             await this.tabRepository.updateTab(
-              progressiveTab.tabId,
+              progressiveTab?.tabId as string,
               progressiveTab,
             );
           } else {
@@ -1373,12 +1413,18 @@ class RestExplorerViewModel
             initRequestTab.updateName(req.name);
             initRequestTab.updateDescription(req.description);
             initRequestTab.updatePath(expectedPath);
-            initRequestTab.updateUrl(req.request.url);
-            initRequestTab.updateMethod(req.request.method);
-            initRequestTab.updateBody(req.request.body);
-            initRequestTab.updateQueryParams(req.request.queryParams);
-            initRequestTab.updateAuth(req.request.auth);
-            initRequestTab.updateHeaders(req.request.headers);
+            initRequestTab.updateUrl(req?.request?.url as string);
+            initRequestTab.updateMethod(
+              req.request.method as RequestMethodEnum,
+            );
+            initRequestTab.updateBody(req.request.body as unknown as Body);
+            initRequestTab.updateQueryParams(
+              req.request.queryParams as KeyValueChecked[],
+            );
+            initRequestTab.updateAuth(req.request.auth as Auth);
+            initRequestTab.updateHeaders(
+              req.request.headers as KeyValueChecked[],
+            );
             this.tabRepository.createTab(initRequestTab.getValue());
             moveNavigation("right");
           }
@@ -1420,7 +1466,7 @@ class RestExplorerViewModel
             workspaceId: _workspaceMeta.id,
           };
           if (
-            !componentData.path.workspaceId ||
+            !componentData?.path?.workspaceId ||
             !componentData.path.collectionId
           ) {
             this.updateRequestName(res.data.data.name);
@@ -1430,7 +1476,10 @@ class RestExplorerViewModel
             const progressiveTab = this._tab.getValue();
             progressiveTab.isSaved = true;
             this.tab = progressiveTab;
-            this.tabRepository.updateTab(progressiveTab.tabId, progressiveTab);
+            this.tabRepository.updateTab(
+              progressiveTab?.tabId as string,
+              progressiveTab,
+            );
           } else {
             const initRequestTab = new InitRequestTab(
               res.data.data.id,
@@ -1475,7 +1524,7 @@ class RestExplorerViewModel
    */
   public updateEnvironment = async (
     isGlobalVariable: boolean,
-    environmentVariables,
+    environmentVariables: EnvExtractedByWorkspaceType,
     newVariableObj: KeyValue,
   ) => {
     let isGuestUser;
@@ -1534,7 +1583,7 @@ class RestExplorerViewModel
         };
       }
       const response = await this.environmentService.updateEnvironment(
-        this._tab.getValue().path.workspaceId,
+        this._tab?.getValue()?.path?.workspaceId as string,
         environmentVariables.global.id,
         payload,
       );
@@ -1618,7 +1667,7 @@ class RestExplorerViewModel
       }
       // api response
       const response = await this.environmentService.updateEnvironment(
-        this._tab.getValue().path.workspaceId,
+        this._tab?.getValue()?.path?.workspaceId as string,
         environmentVariables.local.id,
         payload,
       );
@@ -1692,8 +1741,8 @@ class RestExplorerViewModel
     });
     if (newCollectionName) {
       if (isGuestUser == true) {
-        let col = await this.collectionRepository.readCollection(collectionId);
-        col = col.toMutableJSON();
+        let x = await this.collectionRepository.readCollection(collectionId);
+        let col = x.toMutableJSON();
         col.name = newCollectionName;
         this.collectionRepository.updateCollection(collectionId, col);
         notifications.success("Collection renamed successfully!");
@@ -1762,7 +1811,9 @@ class RestExplorerViewModel
             collectionId,
             folderId,
           );
-        res.name = newFolderName;
+        if (res?.name) {
+          res.name = newFolderName;
+        }
 
         this.collectionRepository.updateRequestOrFolderInCollection(
           collectionId,
@@ -1808,7 +1859,11 @@ class RestExplorerViewModel
    * @param chunkSize - The number of characters per chunk.
    * @param delay - The delay in milliseconds between each chunk display.
    */
-  private displayDataInChunks = async (data, chunkSize, delay) => {
+  private displayDataInChunks = async (
+    data: any,
+    chunkSize: number,
+    delay: number,
+  ) => {
     let index = 0;
 
     const sleep = (ms: number) =>
@@ -1817,13 +1872,17 @@ class RestExplorerViewModel
       if (index < data.length) {
         const chunk = data.slice(index, index + chunkSize);
         const componentData = this._tab.getValue();
-        const length =
-          componentData?.property?.request?.ai?.conversations.length;
-        componentData.property.request.ai.conversations[length - 1].message =
-          componentData.property.request.ai.conversations[length - 1].message +
-          chunk;
+        const length = componentData?.property?.request?.ai?.conversations
+          ?.length as number;
+        if (
+          componentData?.property?.request?.ai.conversations[length - 1].message
+        ) {
+          componentData.property.request.ai.conversations[length - 1].message =
+            componentData.property.request.ai.conversations[length - 1]
+              .message + chunk;
+        }
         await this.updateRequestAIConversation([
-          ...componentData.property.request.ai.conversations,
+          ...(componentData?.property?.request?.ai.conversations || []),
         ]);
         index += chunkSize;
         await sleep(delay);
@@ -1854,12 +1913,12 @@ class RestExplorerViewModel
     await this.updateRequestState({ isChatbotGeneratingResponse: true });
     const componentData = this._tab.getValue();
     const apiData = {
-      body: componentData.property.request.body,
-      headers: componentData.property.request.headers,
-      method: componentData.property.request.method,
-      queryParams: componentData.property.request.queryParams,
-      url: componentData.property.request.url,
-      auth: componentData.property.request.auth,
+      body: componentData?.property?.request?.body,
+      headers: componentData?.property?.request?.headers,
+      method: componentData?.property?.request?.method,
+      queryParams: componentData?.property?.request?.queryParams,
+      url: componentData?.property?.request?.url,
+      auth: componentData?.property?.request?.auth,
     };
 
     // Call the AI assistant service to generate a response
@@ -1916,82 +1975,93 @@ class RestExplorerViewModel
     await this.updateRequestState({ isChatbotGeneratingResponse: true });
     let componentData = this._tab.getValue();
     const apiData = {
-      body: componentData.property.request.body,
-      headers: componentData.property.request.headers,
-      method: componentData.property.request.method,
-      queryParams: componentData.property.request.queryParams,
-      url: componentData.property.request.url,
-      auth: componentData.property.request.auth,
+      body: componentData?.property?.request?.body,
+      headers: componentData?.property?.request?.headers,
+      method: componentData?.property?.request?.method,
+      queryParams: componentData?.property?.request?.queryParams,
+      url: componentData?.property?.request?.url,
+      auth: componentData?.property?.request?.auth,
     };
-    const socketValue: Socket =
+    const socketValue: any =
       await this.aiAssistentWebSocketService.sendPromptMessage({
         text: prompt,
         instructions: `You are an AI Assistant, responsible for answering API related queries. Give the response only in markdown format. Only answer questions related to the provided API data and API Management. Give to the point and concise responses, only give explanations when they are asked for. Always follow best practices for REST API and answer accordingly. Utilize the provided api data ${JSON.stringify(
           apiData,
         )}. Never return the result same as prompt.`,
-        tabId: componentData.tabId,
+        tabId: componentData.tabId as string,
         threadId: componentData?.property?.request?.ai?.threadId,
       });
     let updatePromise = Promise.resolve(); // Initialize a promise chain
     socketValue.off(`aiResponse_${componentData.tabId}`);
-    socketValue?.on(`aiResponse_${componentData.tabId}`, async (response) => {
-      updatePromise = updatePromise.then(async () => {
-        // Check if the conversation already contains the messageId
-        componentData = this._tab.getValue();
-        const existingMessageIndex =
-          componentData.property.request.ai.conversations.findIndex((conv) => {
-            return conv.messageId === response.messageId;
-          });
-        if (existingMessageIndex === -1 && response?.status) {
-          // If the messageId does not exist, add a new message entry
+    socketValue?.on(
+      `aiResponse_${componentData.tabId}`,
+      async (response: any) => {
+        updatePromise = updatePromise.then(async () => {
+          // Check if the conversation already contains the messageId
+          componentData = this._tab.getValue();
+          const existingMessageIndex =
+            componentData?.property?.request?.ai.conversations.findIndex(
+              (conv) => {
+                return conv.messageId === response.messageId;
+              },
+            );
+          if (existingMessageIndex === -1 && response?.status) {
+            // If the messageId does not exist, add a new message entry
 
-          await this.updateRequestAIThread(response.threadId);
-          await this.updateRequestAIConversation([
-            ...componentData.property.request.ai.conversations,
-            {
-              messageId: response.messageId,
-              message: response.result,
-              type: MessageTypeEnum.RECEIVER,
-              isLiked: false,
-              isDisliked: false,
-              status: true,
-            },
-          ]);
-        } else if (response?.status) {
-          componentData.property.request.ai.conversations[
-            existingMessageIndex
-          ].message =
-            componentData.property.request.ai.conversations[
-              existingMessageIndex
-            ].message + response.result;
-          await this.updateRequestAIConversation([
-            ...componentData.property.request.ai.conversations,
-          ]);
-        }
-        if (response?.status === "Completed") {
-          await this.updateRequestState({
-            isChatbotGeneratingResponse: false,
-          });
-        }
-        if (response?.status === "Failed") {
-          await this.updateRequestState({
-            isChatbotGeneratingResponse: false,
-          });
-          // Update the conversation with an error message
-          this.updateRequestAIConversation([
-            ...(componentData?.property?.request?.ai?.conversations || []),
-            {
-              message: "Something went wrong! Please try again.",
-              messageId: uuidv4(),
-              type: MessageTypeEnum.RECEIVER,
-              isLiked: false,
-              isDisliked: false,
-              status: false,
-            },
-          ]);
-        }
-      });
-    });
+            await this.updateRequestAIThread(response.threadId);
+            await this.updateRequestAIConversation([
+              ...(componentData?.property?.request?.ai?.conversations || []),
+              {
+                messageId: response.messageId,
+                message: response.result,
+                type: MessageTypeEnum.RECEIVER,
+                isLiked: false,
+                isDisliked: false,
+                status: true,
+              },
+            ]);
+          } else if (response?.status) {
+            if (
+              componentData?.property?.request?.ai?.conversations[
+                existingMessageIndex as number
+              ].message
+            ) {
+              componentData.property.request.ai.conversations[
+                existingMessageIndex as number
+              ].message =
+                componentData.property.request.ai.conversations[
+                  existingMessageIndex as number
+                ].message + response.result;
+            }
+            await this.updateRequestAIConversation([
+              ...(componentData?.property?.request?.ai?.conversations || []),
+            ]);
+          }
+          if (response?.status === "Completed") {
+            await this.updateRequestState({
+              isChatbotGeneratingResponse: false,
+            });
+          }
+          if (response?.status === "Failed") {
+            await this.updateRequestState({
+              isChatbotGeneratingResponse: false,
+            });
+            // Update the conversation with an error message
+            this.updateRequestAIConversation([
+              ...(componentData?.property?.request?.ai?.conversations || []),
+              {
+                message: "Something went wrong! Please try again.",
+                messageId: uuidv4(),
+                type: MessageTypeEnum.RECEIVER,
+                isLiked: false,
+                isDisliked: false,
+                status: false,
+              },
+            ]);
+          }
+        });
+      },
+    );
   };
 
   /**
@@ -2005,12 +2075,12 @@ class RestExplorerViewModel
     await this.updateRequestState({ isDocGenerating: true });
     const componentData = this._tab.getValue();
     const apiData = {
-      body: componentData.property.request.body,
-      headers: componentData.property.request.headers,
-      method: componentData.property.request.method,
-      queryParams: componentData.property.request.queryParams,
-      url: componentData.property.request.url,
-      auth: componentData.property.request.auth,
+      body: componentData?.property?.request?.body,
+      headers: componentData?.property?.request?.headers,
+      method: componentData?.property?.request?.method,
+      queryParams: componentData.property?.request?.queryParams,
+      url: componentData?.property?.request?.url,
+      auth: componentData?.property?.request?.auth,
     };
     prompt += `. Utilize the provided api data ${JSON.stringify(apiData)}`;
     const response = await this.aiAssistentService.generateAiResponse({
@@ -2043,7 +2113,11 @@ class RestExplorerViewModel
   public toggleChatMessageLike = (_messageId: string, _flag: boolean) => {
     const componentData = this._tab.getValue();
     const data = componentData?.property?.request?.ai;
-    this.aiAssistentService.updateAiStats(data.threadId, _messageId, _flag);
+    this.aiAssistentService.updateAiStats(
+      data?.threadId as string,
+      _messageId,
+      _flag,
+    );
 
     // Map through the conversations and update the like or dislike status of the specified message
     const convo = data?.conversations?.map((elem) => {
@@ -2058,7 +2132,7 @@ class RestExplorerViewModel
       }
       return elem;
     });
-    this.updateRequestAIConversation(convo);
+    this.updateRequestAIConversation(convo as Conversation[]);
   };
 
   /**

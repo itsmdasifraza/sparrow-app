@@ -1,6 +1,5 @@
 import { makeHttpRequestV2 } from "$lib/api/api.common";
 import { ResponseStatusCode } from "$lib/utils/enums";
-import { environmentType } from "$lib/utils/enums";
 import { createDeepCopy } from "$lib/utils/helpers";
 import { RequestTabAdapter } from "@app/adapter";
 import type { EnvironmentDocument, TabDocument } from "@app/database/database";
@@ -9,10 +8,7 @@ import { EnvironmentRepository } from "@app/repositories/environment.repository"
 import { TabRepository } from "@app/repositories/tab.repository";
 import { WorkspaceRepository } from "@app/repositories/workspace.repository";
 import type { Tab } from "@common/types/workspace";
-import type {
-  ENVDocumentType,
-  ENVExtractVariableType,
-} from "@common/types/workspace/environment";
+import { EnvScopeEnum } from "@common/types/workspace/environment";
 import type {
   TFAPIResponseType,
   TFHistoryAPIResponseStoreType,
@@ -172,7 +168,7 @@ export class TestflowExplorerPageViewModel {
           })
           .filter((elem) => {
             if (
-              elem.type === environmentType.GLOBAL ||
+              elem.type === EnvScopeEnum.GLOBAL ||
               elem.id === environmentId
             ) {
               return true;
@@ -191,7 +187,7 @@ export class TestflowExplorerPageViewModel {
                 envs.unshift({
                   key: variable.key,
                   value: variable.value,
-                  type: temp.type === environmentType.GLOBAL ? "G" : "E",
+                  type: temp.type === EnvScopeEnum.GLOBAL ? "G" : "E",
                   environment: temp.name,
                 });
               }

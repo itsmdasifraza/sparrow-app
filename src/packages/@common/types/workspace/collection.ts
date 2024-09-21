@@ -76,7 +76,7 @@ export interface RequestDto {
   method: string;
   operationId: string;
   url: string;
-  body: RequestBodyDto[];
+  body: RequestBodyDto;
   selectedRequestBodyType: string;
   selectedRequestAuthType: string;
   queryParams: KeyValueChecked[];

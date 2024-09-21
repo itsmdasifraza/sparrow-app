@@ -8,6 +8,8 @@ import {
 import {
   RequestDatasetEnum,
   type FormData,
+  type KeyValueChecked,
+  type KeyValueCheckedWithBase,
   type Path,
   type RequestTab,
   type Tab,
@@ -126,17 +128,17 @@ export class RequestTabAdapter {
    * @param requestTab - request backend data
    * @returns
    */
-  public unadapt(requestTab: Tab) {
+  public unadapt(requestTab: Partial<Tab>) {
     requestTab = createDeepCopy(requestTab);
     const bodyType =
-      requestTab.property.request.state.requestBodyNavigation ===
+      requestTab?.property?.request?.state.requestBodyNavigation ===
       RequestDatasetEnum.RAW
         ? requestTab.property.request.state.requestBodyLanguage
-        : requestTab.property.request.state.requestBodyNavigation;
+        : requestTab?.property?.request?.state.requestBodyNavigation;
     // parsing form data
-    const textFormData = [];
-    const fileFormData = [];
-    requestTab.property.request.body.formdata.map((pair) => {
+    const textFormData: KeyValueChecked[] = [];
+    const fileFormData: KeyValueCheckedWithBase[] = [];
+    requestTab?.property?.request?.body.formdata.map((pair) => {
       if (pair.type == "text") {
         textFormData.push({
           key: pair.key,
@@ -152,20 +154,23 @@ export class RequestTabAdapter {
         });
       }
     });
-    requestTab.property.request.body.formdata = {
-      text: textFormData,
-      file: fileFormData,
-    };
     return {
-      method: requestTab.property.request.method,
-      url: requestTab.property.request.url,
-      body: requestTab.property.request.body,
-      headers: requestTab.property.request.headers,
-      queryParams: requestTab.property.request.queryParams,
-      auth: requestTab.property.request.auth,
-      selectedRequestBodyType: unsetBodyType(bodyType),
+      method: requestTab?.property?.request?.method,
+      url: requestTab?.property?.request?.url,
+      body: {
+        raw: requestTab?.property?.request?.body.raw,
+        urlencoded: requestTab?.property?.request?.body.urlencoded,
+        formdata: {
+          text: textFormData,
+          file: fileFormData,
+        },
+      },
+      headers: requestTab?.property?.request?.headers,
+      queryParams: requestTab?.property?.request?.queryParams,
+      auth: requestTab?.property?.request?.auth,
+      selectedRequestBodyType: unsetBodyType(bodyType as string),
       selectedRequestAuthType: unsetAuthType(
-        requestTab.property.request.state?.requestAuthNavigation,
+        requestTab?.property?.request?.state?.requestAuthNavigation,
       ),
     };
   }

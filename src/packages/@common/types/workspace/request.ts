@@ -191,7 +191,7 @@ export interface UrlWrapper {
   url: string;
 }
 export interface ResponseHeadersWrapper {
-  headers: KeyValueChecked[];
+  headers: KeyValue[];
 }
 
 export interface ResponseStatusWrapper {
