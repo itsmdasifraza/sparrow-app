@@ -31,6 +31,7 @@
 {#if render}
   <TestflowExplorer
     tab={_viewModel.tab}
+    environmentVariables={{}}
     {testflowStore}
     onUpdateNodes={_viewModel.updateNodes}
     onUpdateEdges={_viewModel.updateEdges}
