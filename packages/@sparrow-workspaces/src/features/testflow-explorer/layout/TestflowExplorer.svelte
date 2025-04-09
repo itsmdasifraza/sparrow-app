@@ -1355,8 +1355,7 @@
 <!-- <svelte:window on:keydown={handleKeyPress} /> -->
 
 <Modal
-  title={""}
-  type={"dark"}
+  title={"Delete block?"}
   width={"540px"}
   zIndex={1000}
   isOpen={isDeleteNodeModalOpen}
