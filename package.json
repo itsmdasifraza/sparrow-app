@@ -3,7 +3,11 @@
   "private": true,
   "author": "Sparrow",
   "description": "The Sparrow App is your next go to API development buddy which can help you test, debug, distribute better APIs while collaborating with your colleagues and making you a better programmer.",
+<<<<<<< HEAD
   "version": "2.28.0",
+=======
+  "version": "2.27.1",
+>>>>>>> a5e6611e340fb98d87cea1dd7a4825061beaa8cd
   "type": "module",
   "workspaces": [
     "./apps/@sparrow-web",
@@ -178,6 +182,7 @@
           "assets": [
             {
               "path": "/Users/runner/work/sparrow-app/sparrow-app/apps/@sparrow-desktop/src-tauri/target/debug/bundle/dmg/*.dmg",
+<<<<<<< HEAD
               "label": "Sparrow_2.28.0.dmg"
             },
             {
@@ -191,6 +196,21 @@
             {
               "path": "msi_files/*.zip",
               "label": "Sparrow_2.28.0_x64_en-US.msi.zip"
+=======
+              "label": "Sparrow_2.27.1.dmg"
+            },
+            {
+              "path": "msi_files/*.exe",
+              "label": "Sparrow_2.27.1.exe"
+            },
+            {
+              "path": "msi_files/*.msi",
+              "label": "Sparrow_2.27.1.msi"
+            },
+            {
+              "path": "msi_files/*.zip",
+              "label": "Sparrow_2.27.1_x64_en-US.msi.zip"
+>>>>>>> a5e6611e340fb98d87cea1dd7a4825061beaa8cd
             },
             {
               "path": "/Users/runner/work/sparrow-app/sparrow-app/apps/@sparrow-desktop/src-tauri/target/debug/bundle/macos/Sparrow.app.tar.gz",
@@ -198,7 +218,11 @@
             },
             {
               "path": "deb_files/*.deb",
+<<<<<<< HEAD
               "label": "sparrow_2.28.0_amd64.deb"
+=======
+              "label": "sparrow_2.27.1_amd64.deb"
+>>>>>>> a5e6611e340fb98d87cea1dd7a4825061beaa8cd
             }
           ]
         }
