@@ -37,6 +37,30 @@
    */
   export let placeholder = "";
 
+  const interceptPaste = () => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.addEventListener("paste", async (e) => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData("text");
+
+      try {
+        const formatter = new MarkdownFormatter();
+        const editorData = await formatter.FormatData(text);
+        const parsedBlocks = editorData?.blocks || [];
+        const existingData = await editor.save();
+        const existingBlocks = existingData.blocks || [];
+        await editor.blocks.clear();
+        console.log(editor.blocks.getCurrentBlockIndex());
+
+        await editor.render({ blocks: [...existingBlocks, ...parsedBlocks] });
+      } catch (err) {
+        console.error("Failed to parse pasted content", err);
+      }
+    });
+  };
+
   let editor: EditorJS;
 
   const parser = new edjsParser();
@@ -89,6 +113,7 @@
         saveContent();
       },
     });
+    interceptPaste();
   });
 
   /**
